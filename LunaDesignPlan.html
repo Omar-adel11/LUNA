@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUNA — Implementation Design Plan</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --text: #1f2937;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: 30px;
+      padding-bottom: 10px;
+    }
+    h1 { margin-bottom: 5px; color: #111827; }
+    h2 { color: var(--primary); margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { margin-top: 20px; color: #374151; }
+    
+    .subtitle { color: #6b7280; font-size: 1.1rem; font-weight: 500; }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: var(--card-bg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background-color: #f3f4f6; font-weight: 600; }
+    
+    pre {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    code {
+      font-family: ui-monospace, monospace;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #ef4444;
+      font-size: 0.9em;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    
+    ul, ol { margin-bottom: 20px; padding-left: 25px; }
+    li { margin-bottom: 8px; }
+    
+    .flow-step { font-weight: 600; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>LUNA — Implementation Design Plan</h1>
+    <p class="subtitle"><strong>Stack:</strong> .NET Web API (backend) + plain HTML/CSS/JS (frontend, multi-page) → React later.</p>
+    <p class="subtitle"><strong>Layout:</strong> Full responsive redesign (mobile → tablet → desktop).</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Goal & User Flow</h2>
+      <p>A meditation/mindfulness app. Core loop:</p>
+      <p>
+        <span class="flow-step">Login/Register</span> &rarr; 
+        <span class="flow-step">Home</span> (greeting, mood check-in, resume-session card, weekly streak) &rarr; 
+        <span class="flow-step">Pick an Intent</span> (Calm / Focus / Sleep / Reset) &rarr; 
+        <span class="flow-step">Choose Duration</span> &rarr; 
+        <span class="flow-step">Choose Soundscape</span> &rarr; 
+        <span class="flow-step">Breathing Session</span> (timer) &rarr; 
+        <span class="flow-step">Now Playing</span> (post-session player)
+      </p>
+      <p><em>Profile/Settings reachable anytime via nav.</em></p>
+    </section>
+
+    <section>
+      <h2>2. Screens & States</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Screen</th>
+            <th>States</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Login</td><td>default, submitting, wrong-credentials error, network error</td></tr>
+          <tr><td>Register</td><td>default, submitting, validation error, email-taken error</td></tr>
+          <tr><td>Home</td><td>loading, loaded, error</td></tr>
+          <tr><td>Intent picker</td><td>static</td></tr>
+          <tr><td>Duration picker</td><td>static</td></tr>
+          <tr><td>Soundscape picker</td><td>loading, loaded, empty</td></tr>
+          <tr><td>Session (timer)</td><td>running, paused, completed</td></tr>
+          <tr><td>Now Playing</td><td>playing, paused</td></tr>
+          <tr><td>Profile</td><td>loading, loaded, editing, saved, error</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. Reusable Components</h2>
+      <ul>
+        <li>Nav bar (bottom on mobile &rarr; top/side on desktop)</li>
+        <li>Primary / secondary button</li>
+        <li>Labeled text input</li>
+        <li>Auth tab toggle (Login/Register)</li>
+        <li>Mood/intent chip</li>
+        <li>Card (resume-session, streak)</li>
+        <li>Week-day strip</li>
+        <li>Selectable list row (duration, soundscape)</li>
+        <li>Circular timer / progress ring</li>
+        <li>Playback control bar</li>
+        <li>Settings row (icon + label + chevron)</li>
+        <li>Avatar</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. Backend API (.NET Web API)</h2>
+      
+      <h3>Auth:</h3>
+      <ul>
+        <li><code>POST /api/auth/register</code> { name, email, password }</li>
+        <li><code>POST /api/auth/login</code> { email, password } &rarr; short-lived access token + refresh token</li>
+        <li><code>POST /api/auth/refresh</code> { refreshToken } &rarr; new access token (rotates the refresh token)</li>
+        <li><code>POST /api/auth/logout</code> { refreshToken } &rarr; revokes it</li>
+      </ul>
+
+      <h3>User:</h3>
+      <ul>
+        <li><code>GET /api/users/me</code></li>
+        <li><code>PUT /api/users/me</code></li>
+        <li><code>PUT /api/users/me/settings</code> { notifications, language, theme }</li>
+      </ul>
+
+      <h3>Content:</h3>
+      <ul>
+        <li><code>GET /api/intents</code></li>
+        <li><code>GET /api/soundscapes</code></li>
+        <li><em>(Durations are a fixed list — hardcode in frontend, no endpoint needed)</em></li>
+      </ul>
+
+      <h3>Sessions:</h3>
+      <ul>
+        <li><code>POST /api/sessions</code> { intentId, durationMinutes, soundscapeId } &rarr; logs session, updates streak</li>
+        <li><code>GET /api/sessions/streak</code></li>
+        <li><code>GET /api/sessions/last</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4b. Caching Strategy</h2>
+      <p>Build one <code>ICacheService</code> interface with two implementations, swapped via DI:</p>
+      <ol>
+        <li><code>InMemoryCacheService</code> (wraps <code>IMemoryCache</code>) — build and test this first. Use it to cache <code>/api/intents</code> and <code>/api/soundscapes</code> (cache-aside: check cache &rarr; miss &rarr; hit DB &rarr; store in cache &rarr; return). This teaches the cache-aside pattern and expiration in isolation.</li>
+        <li><code>RedisCacheService</code> (wraps <code>IDistributedCache</code> / <code>StackExchange.Redis</code>) — swap this in once Redis is running in Docker. Same interface, same call sites, zero changes to the services that use it. This is the payoff of coding to an interface: you feel <em>why</em> it mattered.</li>
+      </ol>
+      <p>Redis also backs:</p>
+      <ul>
+        <li><strong>Refresh token store</strong> — token, userId, expiry, revoked flag (or use Redis <code>EXPIRE</code> for automatic cleanup)</li>
+        <li><strong>Rate-limit counters</strong> — login/forgot-password attempt counts per IP or email, with a TTL window</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4c. Background Jobs (Hangfire or Quartz.NET)</h2>
+      <ul>
+        <li><strong>Expired/revoked refresh-token cleanup</strong> — recurring job, sweeps tokens past expiry from Redis/DB</li>
+        <li><strong>Session reminder emails</strong> — scheduled job checks users who haven't logged a session in N days, sends a reminder via an email provider (MailKit + SMTP, or SendGrid)</li>
+        <li>Needs: job runner package, an email-sending service/interface (so it's swappable/testable like the cache), and simple email templates</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>5. Navigation & State Passing (multi-page site)</h2>
+      <ul>
+        <li>JWT stored in <code>localStorage</code> after login/register.</li>
+        <li>Every page except login/register checks for the token on load; redirect to <code>login.html</code> if missing.</li>
+        <li>In-progress session setup stored in <code>sessionStorage</code> as JSON: <code>{ intent, duration, soundscapeId }</code>, read/written across intent.html &rarr; duration.html &rarr; soundscape.html &rarr; session.html.</li>
+        <li>On session completion, POST the object to <code>/api/sessions</code>, then clear it from <code>sessionStorage</code>.</li>
+      </ul>
+      <p><strong>Pages:</strong></p>
+<pre><code>login.html
+register.html
+home.html
+intent.html
+duration.html
+soundscape.html
+session.html
+profile.html</code></pre>
+    </section>
+
+    <section>
+      <h2>6. Frontend Folder Structure</h2>
+<pre><code>frontend/
+  login.html
+  register.html
+  home.html
+  intent.html
+  duration.html
+  soundscape.html
+  session.html
+  profile.html
+  css/
+    reset.css
+    variables.css
+    layout.css
+    components.css
+  js/
+    api.js            (fetch wrapper, base URL, auth header, redirect-if-no-token)
+    auth.js           (login/register form logic)
+    nav.js            (shared header/nav injection)
+    home.js
+    session-flow.js   (reads/writes sessionStorage across screens)
+    session-timer.js
+    profile.js
+  assets/
+    images/ icons/ fonts/</code></pre>
+    </section>
+
+    <section>
+      <h2>7. Backend Folder Structure (.NET)</h2>
+<pre><code>backend/
+  docker-compose.yml        (api + db + redis, with healthchecks)
+  Luna.Api/
+    Dockerfile
+    Controllers/  AuthController, UsersController, SessionsController, IntentsController, SoundscapesController
+    Models/        User, Session, Intent, Soundscape, RefreshToken
+    DTOs/
+    Data/          AppDbContext (EF Core)
+    Caching/       ICacheService, InMemoryCacheService, RedisCacheService
+    Auth/          TokenService (issue/validate/rotate JWT + refresh tokens)
+    Jobs/          TokenCleanupJob, SessionReminderJob
+    Email/         IEmailService, SmtpEmailService
+    Middleware/    ExceptionHandlingMiddleware (ProblemDetails), CorrelationIdMiddleware
+    Program.cs      (JWT auth, CORS, rate limiting, logging, health checks setup)</code></pre>
+    </section>
+
+    <section>
+      <h2>7b. Docker</h2>
+      <p><code>docker-compose.yml</code> runs three services: <code>api</code>, <code>db</code> (SQL Server/Postgres), <code>redis</code> — each with a <code>healthcheck:</code> so the API container waits for DB/Redis to actually be ready, not just started. Introduce this <strong>after</strong> the API + DB work locally without Docker (Phase 0 below) — don't containerize before there's anything worth containerizing.</p>
+    </section>
+
+    <section>
+      <h2>8. Build Order</h2>
+      
+      <h3>Phase 0 — Prove the wiring works (bare-bones, no hardening yet)</h3>
+      <ol>
+        <li><strong>.NET API:</strong> User entity, EF Core migration, <em>plain</em> JWT (no refresh yet), register/login endpoints — verify in Swagger.</li>
+        <li><strong>Frontend skeleton:</strong> folders, CSS reset/variables, shared nav markup.</li>
+        <li><strong>Build Auth:</strong> <code>login.html</code>/<code>register.html</code>, wire to the real API, store the token, redirect to a placeholder <code>home.html</code>.<br>
+        &rarr; <em>Goal: confirm frontend ↔ backend ↔ DB all talk to each other, end to end, before adding any complexity.</em></li>
+      </ol>
+
+      <h3>Phase 1 — Harden the backend (before touching any other screen)</h3>
+      <ol start="4">
+        <li><strong>Docker:</strong> <code>docker-compose</code> for API + DB (now that both work locally) — get the app running the same way in a container.</li>
+        <li><strong>Add Redis</strong> as a third service in <code>docker-compose</code>.</li>
+        <li><strong>Caching:</strong> build <code>ICacheService</code>, implement <code>InMemoryCacheService</code> first and prove cache-aside works on <code>/api/intents</code>, then swap in <code>RedisCacheService</code> — same call sites, new implementation.</li>
+        <li><strong>Refresh Tokens:</strong> short-lived access token + refresh token stored in Redis, <code>/api/auth/refresh</code> with rotation, <code>/api/auth/logout</code> revocation, expiry handling. Update <code>login.html</code>'s <code>js/auth.js</code> (and <code>api.js</code>) to silently refresh on a 401 instead of booting the user to login.</li>
+        <li><strong>Structured Logging (Serilog)</strong> + request correlation IDs; log auth events specifically (login success/fail, refresh, logout).</li>
+        <li><strong>Global Error Handling:</strong> exception middleware returning consistent <code>ProblemDetails</code> responses.</li>
+        <li><strong>Rate Limiting</strong> on login/register/forgot-password, using Redis-backed counters.</li>
+        <li><strong>Background Jobs (Hangfire/Quartz):</strong> expired-refresh-token cleanup job, then session-reminder emails (needs an <code>IEmailService</code> + SMTP/SendGrid setup + a simple template).</li>
+        <li><strong>Health Checks</strong> for API, DB, and Redis — wire into <code>docker-compose</code> healthchecks.<br>
+        &rarr; <em>Goal: by the end of this phase, your auth system is production-grade and every later screen builds on a hardened foundation.</em></li>
+      </ol>
+
+      <h3>Phase 2 — Build out the rest of the app (now backed by the hardened API)</h3>
+      <ol start="13">
+        <li><strong>Home page:</strong> static UI first, then wire <code>GET /api/users/me</code> + streak.</li>
+        <li><strong>Session flow:</strong> Intent &rarr; Duration &rarr; Soundscape chain (pure frontend, sessionStorage).</li>
+        <li><strong>Session timer screen:</strong> (JS countdown) &rarr; POST result to <code>/api/sessions</code> on finish.</li>
+        <li><strong>Profile page:</strong> GET/PUT user info + settings, including working <strong>Language</strong> switch (JSON string dictionary + <code>&lt;select&gt;</code>) and <strong>Theme</strong>/night-mode toggle (CSS variables).</li>
+        <li><strong>Now Playing screen:</strong> (reuses session player UI/CSS).</li>
+      </ol>
+
+      <h3>Phase 3 — Polish</h3>
+      <ol start="18">
+        <li><strong>Responsive pass:</strong> mobile-first CSS, then tablet/desktop breakpoints, screen by screen.</li>
+        <li><strong>Polish:</strong> loading spinners, error banners (using your <code>ProblemDetails</code> responses), empty states, real streak data on the week strip.</li>
+      </ol>
+    </section>
+  </main>
+
+</body>
+</html>
