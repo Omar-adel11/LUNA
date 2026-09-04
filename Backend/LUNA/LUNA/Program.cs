@@ -25,6 +25,18 @@ namespace LUNA
 
 
 
+
+            //CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", builder =>
+                {
+                    builder.WithOrigins("https://localhost:3000")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -35,6 +47,8 @@ namespace LUNA
 
             app.UseHttpsRedirection();
 
+            app.UseCors("AllowFrontend");
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

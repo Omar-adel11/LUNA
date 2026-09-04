@@ -9,7 +9,7 @@ namespace DAL.Entities
     public class Session
     {
         public int Id { get; set; }
-        public DateTime Duration { get; set; }
+        public TimeSpan Duration { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         //navigation properties
