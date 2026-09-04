@@ -1,4 +1,8 @@
 
+using System;
+using DAL.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace LUNA
 {
     public class Program
@@ -12,6 +16,14 @@ namespace LUNA
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            //Registering the services
+            builder.Services.AddDbContext<DBContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+
 
             var app = builder.Build();
 
