@@ -9,9 +9,7 @@ namespace BLL.DTOs.AuthDTOs
 {
     public class ChangePasswordDTO
     {
-        [Required]
-        [EmailAddress]
-        public string? email { get; set; } = string.Empty;
+       
         [Required]
         [MinLength(6)]
         [DataType(DataType.Password)]

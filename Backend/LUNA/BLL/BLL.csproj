@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Mapping\AuthMapping\" />
+    <Compile Remove="Services\Mapping\**" />
+    <EmbeddedResource Remove="Services\Mapping\**" />
+    <None Remove="Services\Mapping\**" />
   </ItemGroup>
 
   <ItemGroup>

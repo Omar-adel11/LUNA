@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 using BLL.DTOs.AuthDTOs;
 using BLL.DTOs.userDtos;
 using BLL.Exceptions.BadRequest;
@@ -49,7 +48,7 @@ namespace BLL.Services.Auth
             var user = new User
             {
                 Email = signupDTO.email,
-                UserName = signupDTO.name,
+                UserName = signupDTO.username,
             };
             var result = await _userManager.CreateAsync(user, signupDTO.password);
             if (!result.Succeeded)
@@ -71,9 +70,9 @@ namespace BLL.Services.Auth
             };
         }
         
-        public async Task<string> ChangePasswordAsync(ChangePasswordDTO changePasswordDTO)
+        public async Task<string> ChangePasswordAsync(ChangePasswordDTO changePasswordDTO,string email)
         {
-            var user = await CheckEmailExistence(changePasswordDTO.email);
+            var user = await CheckEmailExistence(email);
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, changePasswordDTO.password);
             if (!isPasswordValid)
             {

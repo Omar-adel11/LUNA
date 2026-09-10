@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PL.Middlewares;
 
@@ -42,9 +43,17 @@ namespace LUNA
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            builder.Services.AddIdentity<User, IdentityRole<int>>()
-                   .AddEntityFrameworkStores<DBContext>()
-                   .AddDefaultTokenProviders();
+            builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+            {
+               
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
+            })
+            .AddEntityFrameworkStores<DBContext>()
+            .AddDefaultTokenProviders();
+
+            //builder.Services.AddIdentity<User, IdentityRole<int>>()
+            //       .AddEntityFrameworkStores<DBContext>()
+            //       .AddDefaultTokenProviders();
 
             IWebHostEnvironment env = builder.Environment;
             //JWT
@@ -107,7 +116,7 @@ namespace LUNA
             {
                 options.AddPolicy("AllowFrontend", builder =>
                 {
-                    builder.WithOrigins("https://localhost:3000")
+                    builder.WithOrigins("http://127.0.0.1:5500")
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });

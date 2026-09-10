@@ -11,7 +11,7 @@ namespace BLL.DTOs.AuthDTOs
     public class SignupDTO
     {
         [Required]
-        public string name { get; set; } = string.Empty;
+        public string username { get; set; } = string.Empty;
         [Required]
         [EmailAddress]
         public string email { get; set; } = string.Empty;

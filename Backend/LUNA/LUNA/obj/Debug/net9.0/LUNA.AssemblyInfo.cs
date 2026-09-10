@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LUNA")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01bcfb2fa4ac404f1f711a7a6cea8d01f7833d87")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f517dccba093cecc7a3c6af0a2d974701ae4a53a")]
 [assembly: System.Reflection.AssemblyProductAttribute("LUNA")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LUNA")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -34,9 +34,9 @@ namespace PL.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> changePassword(ChangePasswordDTO changePasswordDTO)
         {
-            changePasswordDTO.email = User.FindFirst(ClaimTypes.Email).Value;
-            var result = await serviceManager.AuthService.ChangePasswordAsync(changePasswordDTO);
-            return Ok(result);
+            var email = User.FindFirst(ClaimTypes.Email).Value;
+            var result = await serviceManager.AuthService.ChangePasswordAsync(changePasswordDTO, email);
+            return Ok(new { message = result });
         }
         
         [HttpPost("forget-password")]
