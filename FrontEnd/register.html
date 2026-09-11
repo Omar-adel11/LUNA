@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link href="./css/reset.css" rel="stylesheet">
+    <link href="./css/variables.css" rel="stylesheet">
+    <link href="./css/layout.css" rel="stylesheet">
+    <link href="./css/component.css" rel="stylesheet">
+
+    <title>Register | Luna App</title>
+</head>
+
+<body>
+
+    <main class="main-form-container">
+
+        <!-- Logo -->
+        <img
+            src="./images/logo.png"
+            alt="Luna App Logo"
+            class="logo"
+        >
+
+        <h1 class="title">
+            L<span>U</span>NA
+        </h1>
+
+
+        <!-- Login / Register -->
+        <div class="btn-container">
+
+            <a
+                href="login.html"
+                class="btn-a"
+            >
+                LOGIN
+            </a>
+
+            <a
+                href="register.html"
+                class="btn-a active"
+            >
+                REGISTER
+            </a>
+
+        </div>
+
+
+        <!-- Register Form -->
+        <div class="form-container">
+
+            <form
+                action="#"
+                method="post"
+                enctype="multipart/form-data"
+                id="register-form"
+            >
+
+                <!-- Username -->
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        autocomplete="name"
+                        required
+                        class="btn"
+                    >
+
+                </div>
+
+
+                <!-- Email -->
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        required
+                        class="btn"
+                    >
+
+                </div>
+
+
+                <!-- Password -->
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="new-password"
+                        required
+                        class="btn"
+                    >
+
+                </div>
+
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+
+                    <label for="confirm-password">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirm-password"
+                        name="confirmPassword"
+                        autocomplete="new-password"
+                        required
+                        class="btn"
+                    >
+
+                </div>
+
+
+                <!-- Profile Image -->
+                <div class="form-group">
+
+                    <label for="profile-image">
+                        Profile Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="profile-image"
+                        name="image"
+                        accept="image/*"
+                        class="btn"
+                    >
+
+                </div>
+
+
+                <!-- Submit -->
+                <button
+                    type="submit"
+                    class="submit-btn"
+                >
+                    Register
+                </button>
+                <p id="form-status" class="form-status" ></p>
+            </form>
+
+        </div>
+
+    </main>
+<script type="module" src="./src/pages/register.js"></script>
+</body>
+
+</html>

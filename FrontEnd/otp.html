@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link href="./css/reset.css" rel="stylesheet">
+    <link href="./css/variables.css" rel="stylesheet">
+    <link href="./css/layout.css" rel="stylesheet">
+    <link href="./css/component.css" rel="stylesheet">
+
+    <title>Verify OTP | Luna App</title>
+</head>
+
+<body>
+
+    <main class="main-form-container">
+
+        <img
+            src="./images/logo.png"
+            alt="Luna App Logo"
+            class="logo"
+        >
+
+        <h1 class="title">
+            L<span>U</span>NA
+        </h1>
+
+        <p class="auth-description">
+            Enter the 6-digit code sent to your email.
+        </p>
+
+        <div class="form-container">
+
+            <form
+                id="otp-form"
+                method="post"
+            >
+
+                <div class="otp-container">
+
+                    <input
+                        type="text"
+                        name="otp1"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 1"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="otp2"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 2"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="otp3"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 3"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="otp4"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 4"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="otp5"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 5"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="otp6"
+                        maxlength="1"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        class="otp-input"
+                        aria-label="OTP digit 6"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                >
+                    Verify
+                </button>
+
+                <p
+                    id="form-status"
+                    class="form-status"
+                ></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <script
+        type="module"
+        src="./src/pages/otp.js"
+    ></script>
+
+</body>
+
+</html>
