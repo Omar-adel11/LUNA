@@ -47,8 +47,16 @@ namespace PL.Controllers
 
         }
 
+        [HttpPost("check-otp")]
+        public async Task<IActionResult> CheckOtp([FromBody] CheckOtpDTO checkOtpDTO)
+        {
+            var result = await serviceManager.AuthService.CheckOtpAsync(checkOtpDTO);
+            return Ok(result);
+
+        }
+
         [HttpPost("reset-password")]
-        public async Task<IActionResult> resetPassword(ResetPasswordDTO resetPasswordDTO)
+        public async Task<IActionResult> resetPassword(ResetPassDto resetPasswordDTO)
         {
             var result = await serviceManager.AuthService.ResetPasswordAsync(resetPasswordDTO);
             return Ok(result);

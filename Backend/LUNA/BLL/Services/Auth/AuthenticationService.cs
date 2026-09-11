@@ -97,22 +97,31 @@ namespace BLL.Services.Auth
             return "OTP sent to email";
         }
 
-        public async Task<string> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
+        public async Task<string>CheckOtpAsync(CheckOtpDTO checkOtpDTO)
         {
-            var user = await CheckEmailExistence(resetPasswordDTO.email);
+            var user = await CheckEmailExistence(checkOtpDTO.email);
             OTPDTO oTPDTO = new OTPDTO
             {
-                email = resetPasswordDTO.email,
-                otp = resetPasswordDTO.otp
+                email = checkOtpDTO.email,
+                otp = checkOtpDTO.otp
             };
             var ResetToken =  await _oTPService.VerifyOTP(oTPDTO);
-            var result = await _userManager.ResetPasswordAsync(user, ResetToken, resetPasswordDTO.newPassword);
+            return ResetToken.ToString();
+            
+        }
+
+        public async Task<string> ResetPasswordAsync(ResetPassDto resetPassDto)
+        {
+            var user = await CheckEmailExistence(resetPassDto.email);
+            var result = await _userManager.ResetPasswordAsync(user, resetPassDto.ResetToken, resetPassDto.Password);
+
             if (!result.Succeeded)
             {
                 throw new ResetPasswordBadRequestException(result.Errors.Select(e => e.Description));
             }
             return "Password reset successfully";
         }
+
 
         private async Task<User?> CheckEmailExistence(string email)
         {

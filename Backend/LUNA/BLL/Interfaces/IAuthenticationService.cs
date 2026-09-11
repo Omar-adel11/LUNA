@@ -23,13 +23,13 @@ namespace BLL.Interfaces
         Task<string> ForgotPasswordAsync(string email);
 
         // Verify OTP
-      
+        Task<string> CheckOtpAsync(CheckOtpDTO checkOtpDTO);
         // Reset Password
-       
-        Task<string> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
+
+        Task<string> ResetPasswordAsync(ResetPassDto resetPassDto);
 
         // Change Password
-        
+
         Task<string> ChangePasswordAsync(ChangePasswordDTO changePasswordDTO,string email);
     }
 }
