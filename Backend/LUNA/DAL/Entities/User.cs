@@ -12,7 +12,7 @@ namespace DAL.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string? ImgUrl { get; set; }
-        public string Language { get; set; } = "en";
+        public AppLanguage Language { get; set; } =AppLanguage.English;
         public bool notification { get; set; } = true;
         public AppTheme Theme { get; set; } = AppTheme.System;
 

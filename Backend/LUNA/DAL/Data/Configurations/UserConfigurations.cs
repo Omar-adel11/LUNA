@@ -20,6 +20,7 @@ namespace DAL.Data.Configurations
                    .WithOne(s => s.User)
                    .HasForeignKey(s => s.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
+            
         }
     }
 }
