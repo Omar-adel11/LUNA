@@ -1,6 +1,6 @@
 import * as authService from '../services/authService.js';
 import * as authValidation from '../validation/authValidation.js';
-
+import * as session from '../sessions/session.js'; 
 
 const form = document.getElementById('login-form');
 const submitBtn = document.querySelector('.submit-btn');
@@ -27,11 +27,12 @@ form.addEventListener('submit', async(event) => {
 
     try{
         const result = await authService.login(data);
-        sessionStorage.setItem('name',result.name);
-        sessionStorage.setItem('email',result.email);
-        sessionStorage.setItem('imgUrl',result.imgUrl);
-        sessionStorage.setItem('token', result.token);
-        console.log(`${result.token}`);
+        // sessionStorage.setItem('name',result.name);
+        // sessionStorage.setItem('email',result.email);
+        // sessionStorage.setItem('imgUrl',result.imgUrl);
+        // sessionStorage.setItem('token', result.token);
+        // console.log(`${result.token}`);
+        session.setSession(result);
         window.location.href = 'home.html';
     }catch(error){
         console.error(error);
