@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PL.Middlewares;
+using StackExchange.Redis;
 
 namespace LUNA
 {
@@ -93,7 +94,7 @@ namespace LUNA
             builder.Services.AddScoped<IOTPService, OTPService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
-
+            builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
             builder.Services.Configure<ApiBehaviorOptions>(config =>
             {
@@ -167,6 +168,8 @@ namespace LUNA
             });
 
             //caching
+            var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
             builder.Services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";

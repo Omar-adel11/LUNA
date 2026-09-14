@@ -16,6 +16,8 @@ namespace BLL.DTOs.userDtos
         public string email { get; set; } = string.Empty;
         public string? ImgUrl { get; set; }
         public string? Token { get; set; } 
+        public string? refreshToken { get; set; } 
+        
 
     }
 }

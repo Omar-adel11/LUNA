@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Core;
 using BLL.DTOs.AuthDTOs;
 using BLL.DTOs.userDtos;
 using BLL.Exceptions.BadRequest;
@@ -10,21 +11,22 @@ using BLL.Exceptions.NotFound;
 using BLL.Exceptions.Unauthorized;
 using BLL.Interfaces;
 using BLL.Services.Helper;
-using DAL.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Hosting;
 using BLL.Settings.Email;
+using DAL.Entities;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 
 namespace BLL.Services.Auth
 {
     public class AuthenticationService(
         UserManager<User> _userManager,
         ITokenService _tokenService,
+        IRefreshTokenService _refreshTokenService,
         IOTPService _oTPService,
         IEmailService _emailService,
         IHostingEnvironment _env) : IAuthenticationService
     {
-        
+        private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(7);
         public async Task<UserDTO?> Login(LoginDTO loginDTO)
         {
             var user = await CheckEmailExistence(loginDTO.email);
@@ -33,15 +35,49 @@ namespace BLL.Services.Auth
             {
                 throw new InvalidCredentialsException();
             }
+
+            var accessToken = await _tokenService.GenerateToken(user);   
+            var refreshToken = await _refreshTokenService.GenerateAndStoreAsync(user.Id, RefreshTokenLifetime);
+          
+
             return new UserDTO
             {
                 email = user.Email,
                 name = user.UserName,
-                Token = await _tokenService.GenerateToken(user),
-                ImgUrl = user.ImgUrl
+                Token = accessToken,
+                ImgUrl = user.ImgUrl,
+                refreshToken = refreshToken
             };
         }
+        public async Task<UserDTO?> refresh(RefreshRequestDto refreshRequestDto)
+        {
+            var userId = await _refreshTokenService.ValidateAndGetUserIdAsync(refreshRequestDto.RefreshToken);
+            if (userId is null)
+            {
+                throw new InvalidCredentialsException();
+            }
 
+            var user = await _userManager.FindByIdAsync(userId.Value.ToString());
+            if (user is null)
+            {
+                throw new InvalidCredentialsException();
+            }
+
+            // Rotation: the old token is revoked and a brand new one issued.
+
+            await _refreshTokenService.RevokeAsync(refreshRequestDto.RefreshToken);
+            var newRefreshToken = await _refreshTokenService.GenerateAndStoreAsync(user.Id, RefreshTokenLifetime);
+            var newAccessToken = await _tokenService.GenerateToken(user);
+
+            return new UserDTO
+            {
+                email = user.Email,
+                name = user.UserName,
+                Token = newAccessToken,
+                ImgUrl = user.ImgUrl,
+                refreshToken = newRefreshToken
+            };
+        }
         
         public async Task<UserDTO?> Signup(SignupDTO signupDTO)
         {
@@ -122,6 +158,10 @@ namespace BLL.Services.Auth
             return "Password reset successfully";
         }
 
+        public async Task logout(RefreshRequestDto refreshRequestDto)
+        {
+            await _refreshTokenService.RevokeAsync(refreshRequestDto.RefreshToken);
+        }
 
         private async Task<User?> CheckEmailExistence(string email)
         {

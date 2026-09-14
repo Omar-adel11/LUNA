@@ -14,11 +14,21 @@ namespace PL.Controllers
     [Route("api/[controller]")]
     [EnableRateLimiting("sliding-by-ip")]
 
-    public class AuthenticationController(IServiceManager serviceManager,SignInManager<User> signInManager) : ControllerBase
+    public class AuthenticationController(
+        IServiceManager serviceManager,
+        SignInManager<User> signInManager,
+        UserManager<User> _userManager,
+        IRefreshTokenService _refreshTokenService
+        ) : ControllerBase
     {
+
+        private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(7);
+
         [HttpPost("login")]
         public async Task<IActionResult> login(LoginDTO loginDTO)
         {
+           
+
             var result =  await serviceManager.AuthService.Login(loginDTO);
             return Ok(result);
         }
@@ -61,5 +71,26 @@ namespace PL.Controllers
             return Ok(result);
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshRequestDto request)
+        {
+           var result = await serviceManager.AuthService.refresh(request);
+           return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(RefreshRequestDto request)
+        {
+            await serviceManager.AuthService.logout(request);
+            return NoContent();
+        }
+
     }
 }
+
+
+
+
+
+
+

@@ -18,11 +18,13 @@ namespace BLL.Services
 
         public ServiceManager(UserManager<User> _userManager,
         ITokenService _tokenService,
+        IRefreshTokenService _refreshTokenService,
+
         IOTPService _oTPService,
         IEmailService _emailService,
         IHostingEnvironment _env)
         {
-            _authService = new Lazy<IAuthenticationService>(() => new AuthenticationService(_userManager, _tokenService, _oTPService, _emailService, _env));
+            _authService = new Lazy<IAuthenticationService>(() => new AuthenticationService(_userManager, _tokenService, _refreshTokenService, _oTPService, _emailService, _env));
         }
         public IAuthenticationService AuthService => _authService.Value;
     }

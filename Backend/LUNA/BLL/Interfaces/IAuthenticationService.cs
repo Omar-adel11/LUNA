@@ -31,5 +31,10 @@ namespace BLL.Interfaces
         // Change Password
 
         Task<string> ChangePasswordAsync(ChangePasswordDTO changePasswordDTO,string email);
+
+        Task<UserDTO?> refresh(RefreshRequestDto refreshRequestDto);
+        Task logout(RefreshRequestDto refreshRequestDto);
+
+
     }
 }
