@@ -71,9 +71,9 @@
               "target": "Package",
               "version": "[5.0.17, )"
             },
-            "Microsoft.Graph": {
+            "Microsoft.Extensions.Caching.StackExchangeRedis": {
               "target": "Package",
-              "version": "[6.6.0, )"
+              "version": "[9.0.20, )"
             }
           },
           "imports": [
@@ -341,6 +341,10 @@
             "Microsoft.AspNetCore.Mvc.Core": {
               "target": "Package",
               "version": "[2.3.12, )"
+            },
+            "System.Threading.RateLimiting": {
+              "target": "Package",
+              "version": "[9.0.20, )"
             }
           },
           "imports": [
@@ -355,6 +359,9 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }

@@ -71,9 +71,9 @@
               "target": "Package",
               "version": "[5.0.17, )"
             },
-            "Microsoft.Graph": {
+            "Microsoft.Extensions.Caching.StackExchangeRedis": {
               "target": "Package",
-              "version": "[6.6.0, )"
+              "version": "[9.0.20, )"
             }
           },
           "imports": [

@@ -1,10 +1,14 @@
 
 using System;
 using System.Text;
+using System.Text.Json;
+using System.Threading.RateLimiting;
+using BLL.Caching;
 using BLL.Exceptions;
 using BLL.Interfaces;
 using BLL.Services;
 using BLL.Services.Auth;
+using BLL.Services.Repository;
 using BLL.Settings;
 using BLL.Settings.Email;
 using DAL.Data;
@@ -122,6 +126,57 @@ namespace LUNA
                 });
             });
 
+
+            //Rate Limiting
+            builder.Services.AddRateLimiter(options =>
+            {
+                // Return standard HTTP 429 instead of default 503
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+              
+
+                // Define a Sliding Window policy partitioned by user IP address
+                options.AddPolicy("sliding-by-ip", context =>
+                {
+                    string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+                    return RateLimitPartition.GetSlidingWindowLimiter(clientIp, _ =>
+                        new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,                              // Max 5 requests
+                            Window = TimeSpan.FromMinutes(1),             // Per 1 minute
+                            SegmentsPerWindow = 6,
+                            QueueLimit = 0                                // Reject immediately if limit is hit
+                        });
+                });
+
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+
+                    var errorResponse = new
+                    {
+                        success = false,
+                        statusCode = StatusCodes.Status429TooManyRequests,
+                        ErrorMessage = "Too many requests. Please try again later."
+                    };
+
+                    var json = JsonSerializer.Serialize(errorResponse);
+                    await context.HttpContext.Response.WriteAsync(json, cancellationToken);
+                };
+            });
+
+            //caching
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+                options.InstanceName = "Luna:";
+            });
+
+            builder.Services.AddScoped<ICacheRepository, CacheRepository>();
+            builder.Services.AddScoped<ICacheService, RedisCacheService>();
+            builder.Services.AddScoped<IIntentService, IntentService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -138,8 +193,8 @@ namespace LUNA
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
-
             app.UseCors("AllowFrontend");
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
 

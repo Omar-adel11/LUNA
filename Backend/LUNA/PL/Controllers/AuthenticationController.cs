@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using BLL.DTOs.AuthDTOs;
 using BLL.Interfaces;
 using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 namespace PL.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("sliding-by-ip")]
+
     public class AuthenticationController(IServiceManager serviceManager,SignInManager<User> signInManager) : ControllerBase
     {
         [HttpPost("login")]
